@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI-Powered Crime Hotspot Prediction System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        /* HEADER */
+        header {
+            background: #172554;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* MAIN CONTAINER */
+        .container {
+            width: 95%;
+            max-width: 1400px;
+            margin: 25px auto;
+        }
+
+        /* DASHBOARD CARDS */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #64748b;
+        }
+
+        .stat-card p {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 10px 0 0;
+        }
+
+        /* MAP CARD */
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #172554;
+        }
+
+        /* MAP */
+        .map {
+            width: 100%;
+            height: 600px;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .map iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* PREDICTION SECTION */
+        .prediction-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .prediction-section h2 {
+            color: #172554;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .button {
+            margin-top: 20px;
+            padding: 13px 25px;
+            border: none;
+            border-radius: 7px;
+            background: #172554;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background: #1e3a8a;
+        }
+
+        /* RESULT */
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
+        .result h2 {
+            margin-top: 0;
+        }
+
+        /* RISK LEVEL */
+        .risk-high {
+            color: red;
+            font-weight: bold;
+        }
+
+        .risk-medium {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .risk-low {
+            color: green;
+            font-weight: bold;
+        }
+
+        /* CRIME RISK LEGEND */
+        .crime-legend {
+            position: fixed;
+
+            /* MOVED TO LEFT SIDE */
+            left: 25px;
+            bottom: 30px;
+
+            width: 190px;
+            background: white;
+            border: 2px solid #cbd5e1;
+            z-index: 99999;
+
+            font-size: 14px;
+            padding: 15px;
+
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            border-radius: 10px;
+        }
+
+        .crime-legend-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .legend-item {
+            margin: 8px 0;
+        }
+
+        .low {
+            color: green;
+            font-size: 18px;
+        }
+
+        .medium {
+            color: orange;
+            font-size: 18px;
+        }
+
+        .high {
+            color: red;
+            font-size: 18px;
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: 30px;
+            background: #172554;
+            color: white;
+            text-align: center;
+            padding: 18px;
+        }
+
+        /* MOBILE */
+        @media (max-width: 900px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .crime-legend {
+                left: 10px;
+                bottom: 10px;
+                width: 170px;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+    <!-- HEADER -->
+    <header>
+        🤖 AI-Powered Crime Hotspot Prediction System
+    </header>
+
+
+    <div class="container">
+
+        <!-- DASHBOARD STATISTICS -->
+        <div class="stats">
+
+            <div class="stat-card">
+                <h3>Crime Records</h3>
+                <p>{{ total_crimes }}</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>AI Predictions</h3>
+                <p>{{ predictions_count }}</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>AI Models</h3>
+                <p>5</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>System Status</h3>
+                <p style="color:green;">●</p>
+            </div>
+
+        </div>
+
+
+        <!-- MAP -->
+        <div class="card">
+
+            <h2>🗺️ Crime Hotspot Map</h2>
+
+            <div class="map">
+
+                {{ map_html | safe }}
+
+            </div>
+
+        </div>
+
+
+        <!-- PREDICTION -->
+        <div class="prediction-section">
+
+            <h2>🔮 Predict Crime Risk</h2>
+
+            <form method="POST">
+
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label>Latitude</label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            name="latitude"
+                            placeholder="Enter latitude"
+                            value="{{ latitude or '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Longitude</label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            name="longitude"
+                            placeholder="Enter longitude"
+                            value="{{ longitude or '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Crime Count</label>
+
+                        <input
+                            type="number"
+                            name="crime_count"
+                            placeholder="Enter crime count"
+                            value="{{ crime_count or '' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Hour</label>
+
+                        <input
+                            type="number"
+                            name="hour"
+                            min="0"
+                            max="23"
+                            placeholder="0 - 23"
+                            value="{{ hour or '' }}"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <button class="button" type="submit">
+                    🔍 Predict Crime Risk
+                </button>
+
+            </form>
+
+
+            <!-- RESULT -->
+            {% if prediction %}
+
+            <div class="result">
+
+                <h2>
+                    {% if prediction == "High Risk" %}
+                        🔴 HIGH RISK
+                    {% elif prediction == "Medium Risk" %}
+                        🟠 MEDIUM RISK
+                    {% else %}
+                        🟢 LOW RISK
+                    {% endif %}
+                </h2>
+
+                {% if confidence %}
+                <p>
+                    <strong>AI Confidence:</strong>
+                    {{ confidence }}%
+                </p>
+                {% endif %}
+
+                {% if predicted_count %}
+                <p>
+                    <strong>Predicted Crime Count:</strong>
+                    {{ predicted_count }}
+                </p>
+                {% endif %}
+
+                {% if latitude and longitude %}
+                <p>
+                    <strong>Location:</strong>
+                    {{ latitude }}, {{ longitude }}
+                </p>
+                {% endif %}
+
+                {% if hour %}
+                <p>
+                    <strong>Time:</strong>
+                    {{ hour }}:00
+                </p>
+                {% endif %}
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- CRIME RISK LEGEND -->
+    <div class="crime-legend">
+
+        <div class="crime-legend-title">
+            🚨 Crime Risk Level
+        </div>
+
+        <div class="legend-item">
+            <span class="low">●</span>
+            Low Risk
+        </div>
+
+        <div class="legend-item">
+            <span class="medium">●</span>
+            Medium Risk
+        </div>
+
+        <div class="legend-item">
+            <span class="high">●</span>
+            High Risk
+        </div>
+
+    </div>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        <strong>
+            Engineering Project • AI/ML + Flask + Folium
+        </strong>
+
+    </footer>
+
+</body>
+
+</html>
